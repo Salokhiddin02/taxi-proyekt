@@ -1,0 +1,97 @@
+<div class="booking-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()" [title]="'header.goBack' | translate">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <div class="title-with-icon">
+          <mat-icon class="title-icon">local_taxi</mat-icon>
+          <h1>{{ 'booking.title' | translate }}</h1>
+        </div>
+        <p class="header-subtitle">{{ 'booking.subtitle' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Summary -->
+  <div class="booking-summary card slide-up">
+    <h2 class="summary-title">{{ 'booking.summary' | translate }}</h2>
+    
+    <div class="trip-details">
+      <div class="departure-info">
+        <div class="departure-time">
+          <mat-icon class="time-icon">schedule</mat-icon>
+          <span class="time">{{ departureTime }}</span>
+        </div>
+        <div class="trip-duration">{{ 'booking.estimatedDuration' | translate:{duration: getTripDuration()} }}</div>
+      </div>
+
+      <div class="route-info">
+        <div class="route-line">
+          <div class="location-dot from-dot"></div>
+          <div class="route-path"></div>
+          <div class="location-dot to-dot"></div>
+        </div>
+        
+        <div class="route-locations">
+          <div class="location from-location">
+            <div class="location-label">
+              <mat-icon class="location-icon">my_location</mat-icon>
+              {{ 'ui.from' | translate }}
+            </div>
+            <div class="location-text">{{ from }}</div>
+          </div>
+          
+          <div class="location to-location">
+            <div class="location-label">
+              <mat-icon class="location-icon">place</mat-icon>
+              {{ 'ui.to' | translate }}
+            </div>
+            <div class="location-text">{{ to }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-info">
+        <div class="price-breakdown">
+          <div class="price-item">
+            <span class="price-label">
+              <mat-icon class="price-icon">receipt</mat-icon>
+              {{ 'booking.baseFare' | translate }}
+            </span>
+            <span class="price-value">{{ price }} сум</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">
+              <mat-icon class="price-icon">build</mat-icon>
+              {{ 'booking.serviceFee' | translate }}
+            </span>
+            <span class="price-value">{{ getServiceFee() }} сум</span>
+          </div>
+          <div class="price-item total">
+            <span class="price-label">
+              <mat-icon class="price-icon total-icon">account_balance_wallet</mat-icon>
+              {{ 'booking.total' | translate }}
+            </span>
+            <span class="price-value">{{ getTotalPrice() }} сум</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Actions -->
+  <div class="booking-actions slide-up">
+    <button class="btn btn-secondary back-btn-large" (click)="goBack()">
+      <mat-icon class="icon">arrow_back</mat-icon>
+        <span>{{ 'booking.actions.back' | translate }}</span>
+    </button>
+    
+    <button class="btn btn-primary confirm-btn" (click)="confirmBooking()">
+      <mat-icon class="icon">check_circle</mat-icon>
+      <span>{{ 'booking.actions.confirm' | translate }}</span>
+    </button>
+  </div>
+  </div>

@@ -1,0 +1,51 @@
+<!-- Modern Taxi App Container -->
+<div class="app-container">
+  <!-- Navbar Component -->
+  <app-navbar></app-navbar>
+
+  <!-- Main Content -->
+  <main class="app-main">
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
+
+<style>
+  .app-container {
+    min-height: 100vh;
+    background: var(--background);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Main Content */
+  .app-main {
+    flex: 1;
+    padding: var(--space-lg);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    margin-top: 80px; /* Space for fixed navbar */
+  }
+
+  .content-wrapper {
+    width: 100%;
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .app-main {
+      padding: var(--space-md);
+      margin-top: 100px; /* More space for mobile navbar */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .app-main {
+      padding: var(--space-sm);
+    }
+  }
+
+  /* Dark theme adjustments */
+</style>

@@ -1,0 +1,688 @@
+<div class="taxi-detail-modal">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <div class="header-content">
+      <h2 class="modal-title">{{ 'modal.taxiDetails' | translate }}</h2>
+      <button class="close-btn" (click)="closeModal()" mat-icon-button>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Content -->
+  <div class="modal-content">
+    <!-- Trip Overview -->
+    <div class="trip-overview card">
+      <div class="trip-header">
+        <div class="departure-info">
+          <div class="departure-time">
+            <mat-icon class="time-icon">schedule</mat-icon>
+            <span class="time">{{ taxi.departureTime }}</span>
+          </div>
+          <div class="trip-duration">{{ taxi.duration }}</div>
+        </div>
+        
+        <div class="trip-price">
+            <div class="price">{{ taxi.price.toLocaleString() }} {{ 'scheduled.price.currency' | translate }}</div>
+          <div class="price-label">{{ 'scheduled.price.perPerson' | translate }}</div>
+            <div class="price-label">{{ 'scheduled.price.perPerson' | translate }}</div>
+        </div>
+      </div>
+
+      <div class="route-info">
+        <div class="route-line">
+          <div class="location-dot from-dot"></div>
+          <div class="route-path"></div>
+          <div class="location-dot to-dot"></div>
+        </div>
+        
+        <div class="route-locations">
+          <div class="location from-location">
+              <div class="location-label">{{ 'scheduled.route.from' | translate }}</div>
+            <div class="location-text">{{ taxi.route.from }}</div>
+          </div>
+          
+          <div class="location to-location">
+              <div class="location-label">{{ 'scheduled.route.to' | translate }}</div>
+            <div class="location-text">{{ taxi.route.to }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="seats-status">
+        <div class="seats-info" [style.color]="getSeatsColor(taxi.availableSeats, taxi.totalSeats)">
+          <mat-icon>people</mat-icon>
+          <span>{{ getAvailableSeatsText(taxi.availableSeats, taxi.totalSeats) | translate:{count: taxi.availableSeats} }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Driver Information -->
+    <div class="driver-section card">
+      <h3 class="section-title">{{ 'modal.driverInfo' | translate }}</h3>
+      
+      <div class="driver-profile">
+        <div class="driver-avatar">
+          <span class="avatar-text">{{ taxi.driver.name.charAt(0) }}</span>
+        </div>
+        
+        <div class="driver-details">
+          <h4 class="driver-name">{{ taxi.driver.name }}</h4>
+          <div class="driver-rating">
+            <span class="rating-stars">{{ getRatingStars(taxi.driver.rating) }}</span>
+            <span class="rating-value">{{ taxi.driver.rating }}</span>
+          </div>
+            <div class="driver-experience">{{ taxi.driver.experience }} {{ 'scheduled.modal.experience' | translate }}</div>
+          <div class="driver-phone">
+            <mat-icon>phone</mat-icon>
+            <span>{{ taxi.driver.phone }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Car Information -->
+    <div class="car-section card">
+      <h3 class="section-title">{{ 'modal.vehicleInfo' | translate }}</h3>
+      
+      <div class="car-details">
+        <div class="car-model">{{ taxi.car.model }}</div>
+        <div class="car-specs">
+          <div class="spec-item">
+            <mat-icon>calendar_today</mat-icon>
+              <span>{{ taxi.car.year }} {{ 'scheduled.modal.year' | translate }}</span>
+          </div>
+          <div class="spec-item">
+            <mat-icon>palette</mat-icon>
+              <span>{{ taxi.car.color }} {{ 'scheduled.modal.color' | translate }}</span>
+          </div>
+          <div class="spec-item">
+            <mat-icon>confirmation_number</mat-icon>
+              <span>{{ taxi.car.plateNumber }} {{ 'scheduled.modal.plate' | translate }}</span>
+          </div>
+        </div>
+        
+        <div class="car-photos">
+          <div class="photo-grid">
+            <div class="car-photo" *ngFor="let photo of taxi.car.photos">
+                <span class="photo-placeholder">{{ 'scheduled.modal.photos' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section card" *ngIf="taxi.reviews.length > 0">
+      <h3 class="section-title">{{ 'modal.customerReviews' | translate }}</h3>
+      
+      <div class="reviews-list">
+        <div class="review-item" *ngFor="let review of taxi.reviews">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <div class="reviewer-avatar">
+                <span>{{ review.userName.charAt(0) }}</span>
+              </div>
+              <div class="reviewer-details">
+                <div class="reviewer-name">{{ review.userName }}</div>
+                <div class="review-date">{{ formatDate(review.date) }}</div>
+              </div>
+            </div>
+            
+            <div class="review-rating">
+              <span class="rating-stars">{{ getRatingStars(review.rating) }}</span>
+            </div>
+          </div>
+          
+          <div class="review-content">
+            <p class="review-comment">{{ review.comment }}</p>
+            <div class="review-trip">{{ review.trip }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="modal-actions">
+        <button class="btn btn-secondary contact-btn" (click)="contactDriver()" title="{{ 'scheduled.modal.contactDriver' | translate }}">
+          <mat-icon class="icon">call</mat-icon>
+          <span>{{ 'scheduled.modal.contactDriver' | translate }}</span>
+        </button>
+      
+        <button class="btn btn-primary book-btn" 
+                (click)="bookSeat()"
+                [disabled]="taxi.availableSeats === 0">
+          <mat-icon class="icon">event_seat</mat-icon>
+          <span>{{ taxi.availableSeats === 0 ? ('scheduled.seats.full' | translate) : ('scheduled.modal.bookSeat' | translate) }}</span>
+        </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .taxi-detail-modal {
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--background);
+    border-radius: var(--radius-xl);
+  }
+
+  /* Modal Header */
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-light);
+    padding: var(--space-lg);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    z-index: 10;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .close-btn {
+    color: var(--text-secondary);
+  }
+
+  .close-btn:hover {
+    color: var(--text-primary);
+  }
+
+  /* Modal Content */
+  .modal-content {
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  /* Trip Overview */
+  .trip-overview {
+    padding: var(--space-lg);
+  }
+
+  .trip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .departure-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .departure-time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .time-icon {
+    color: var(--primary);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .time {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .trip-duration {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .trip-price {
+    text-align: right;
+  }
+
+  .price {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .price-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Route Information */
+  .route-info {
+    margin-bottom: var(--space-lg);
+  }
+
+  .route-line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .location-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--surface);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+  }
+
+  .from-dot {
+    background: var(--primary);
+  }
+
+  .to-dot {
+    background: var(--secondary);
+  }
+
+  .route-path {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    border-radius: 1px;
+  }
+
+  .route-locations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .location {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .location-label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .location-text {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* Seats Status */
+  .seats-status {
+    display: flex;
+    justify-content: center;
+  }
+
+  .seats-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 500;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Driver Section */
+  .driver-section {
+    padding: var(--space-lg);
+  }
+
+  .section-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-lg) 0;
+  }
+
+  .driver-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .driver-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary) 0%, #0056CC 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-light);
+  }
+
+  .avatar-text {
+    color: white;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+  }
+
+  .driver-details {
+    flex: 1;
+  }
+
+  .driver-name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  .driver-rating {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .rating-stars {
+    font-size: var(--font-size-base);
+    color: #FF9500;
+  }
+
+  .rating-value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .driver-experience {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .driver-phone {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+  }
+
+  /* Car Section */
+  .car-section {
+    padding: var(--space-lg);
+  }
+
+  .car-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .car-model {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .car-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+
+  .spec-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .spec-item mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .car-photos {
+    margin-top: var(--space-md);
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .car-photo {
+    aspect-ratio: 1;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-light);
+  }
+
+  .photo-placeholder {
+    font-size: 2rem;
+  }
+
+  /* Reviews Section */
+  .reviews-section {
+    padding: var(--space-lg);
+  }
+
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .review-item {
+    padding: var(--space-md);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-md);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+  }
+
+  .reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .reviewer-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+  }
+
+  .reviewer-name {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .review-date {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+  }
+
+  .review-rating .rating-stars {
+    font-size: var(--font-size-sm);
+  }
+
+  .review-comment {
+    margin: 0 0 var(--space-sm) 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  .review-trip {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  /* Modal Actions */
+  .modal-actions {
+    display: flex;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-light);
+  }
+
+  .contact-btn {
+    flex: 1;
+  }
+
+  .book-btn {
+    flex: 1;
+  }
+
+  .book-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .taxi-detail-modal {
+      max-width: 100%;
+      max-height: 100vh;
+      border-radius: 0;
+    }
+
+    .modal-header {
+      border-radius: 0;
+    }
+
+    .modal-content {
+      padding: var(--space-md);
+      gap: var(--space-md);
+    }
+
+    .trip-overview,
+    .driver-section,
+    .car-section,
+    .reviews-section {
+      padding: var(--space-md);
+    }
+
+    .trip-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .trip-price {
+      text-align: left;
+    }
+
+    .route-locations {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .driver-profile {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: var(--space-md);
+    }
+
+    .car-specs {
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .photo-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .modal-actions {
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .modal-content {
+      padding: var(--space-sm);
+    }
+
+    .trip-overview,
+    .driver-section,
+    .car-section,
+    .reviews-section {
+      padding: var(--space-sm);
+    }
+
+    .driver-avatar {
+      width: 56px;
+      height: 56px;
+    }
+
+    .avatar-text {
+      font-size: var(--font-size-lg);
+    }
+
+    .car-model {
+      font-size: var(--font-size-base);
+    }
+
+    .photo-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Dark theme adjustments */
+  .dark .modal-header {
+    background: var(--surface);
+    border-bottom-color: var(--border);
+  }
+
+  .dark .seats-info {
+    background: var(--surface-secondary);
+  }
+
+  .dark .review-item {
+    background: var(--surface-secondary);
+  }
+
+  .dark .modal-actions {
+    border-top-color: var(--border);
+  }
+</style>

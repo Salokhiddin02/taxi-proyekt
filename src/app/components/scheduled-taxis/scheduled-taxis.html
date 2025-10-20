@@ -1,0 +1,844 @@
+<div class="scheduled-taxis-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()" [title]="'header.goBack' | translate">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+  <h1>🚗 {{ 'scheduled.title' | translate }}</h1>
+  <p class="header-subtitle">{{ 'scheduled.subtitle' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section slide-up">
+    <div class="filter-chips">
+      <div class="filter-chip active">
+        <mat-icon>schedule</mat-icon>
+  <span>{{ 'scheduled.filters.allTimes' | translate }}</span>
+      </div>
+      <div class="filter-chip">
+        <mat-icon>location_on</mat-icon>
+  <span>{{ 'scheduled.filters.allRoutes' | translate }}</span>
+      </div>
+      <div class="filter-chip">
+        <mat-icon>people</mat-icon>
+  <span>{{ 'scheduled.filters.availableSeats' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taxis List -->
+  <div class="taxis-section slide-up">
+    <div class="section-header">
+      <h2>{{ 'scheduled.departures' | translate }}</h2>
+      <div class="taxis-count-badge">
+        <span class="count-number">{{ scheduledTaxis.length }}</span>
+        <span class="count-text">{{ 'scheduled.count' | translate:{count: scheduledTaxis.length} }}</span>
+      </div>
+    </div>
+    
+    <div class="taxis-list" *ngIf="!isLoading">
+      <div *ngFor="let taxi of scheduledTaxis; let i = index" 
+           class="taxi-card card scale-in" 
+           [style.animation-delay]="(i * 0.1) + 's'"
+           (click)="openTaxiDetails(taxi)">
+        
+        <!-- Taxi Header -->
+        <div class="taxi-header">
+          <div class="departure-time">
+            <div class="time-icon">🕐</div>
+            <div class="time-info">
+              <div class="time">{{ formatTime(taxi.departureTime) }}</div>
+              <div class="duration">{{ taxi.duration }}</div>
+            </div>
+          </div>
+          
+          <div class="price-info">
+            <div class="price">{{ taxi.price.toLocaleString() }} сум</div>
+            <div class="price-label">{{ 'scheduled.price.perPerson' | translate }}</div>
+          </div>
+        </div>
+
+        <!-- Route Information -->
+        <div class="route-info">
+          <div class="route-line">
+            <div class="location-dot from-dot"></div>
+            <div class="route-path"></div>
+            <div class="location-dot to-dot"></div>
+          </div>
+          
+          <div class="locations">
+            <div class="location-item from-location">
+              <div class="location-label">{{ 'scheduled.route.from' | translate }}</div>
+              <div class="location-text">{{ taxi.route.from }}</div>
+            </div>
+            
+            <div class="location-item to-location">
+              <div class="location-label">{{ 'scheduled.route.to' | translate }}</div>
+              <div class="location-text">{{ taxi.route.to }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Driver Information -->
+        <div class="driver-info">
+          <div class="driver-avatar-section">
+            <div class="driver-avatar">
+              <span class="avatar-text">{{ taxi.driver.name.charAt(0) }}</span>
+            </div>
+            <div class="driver-details">
+              <h3 class="driver-name">{{ taxi.driver.name }}</h3>
+              <div class="driver-meta">
+                <div class="rating">
+                  <span class="rating-stars">{{ getRatingStars(taxi.driver.rating) }}</span>
+                  <span class="rating-value">{{ taxi.driver.rating }}</span>
+                </div>
+                <div class="experience">{{ taxi.driver.experience }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="car-info">
+            <div class="car-model">{{ taxi.car.model }}</div>
+            <div class="car-details">{{ taxi.car.year }} • {{ taxi.car.color }}</div>
+          </div>
+        </div>
+
+        <!-- Available Seats -->
+        <div class="seats-info">
+          <div class="seats-indicator" [style.color]="getSeatsColor(taxi.availableSeats, taxi.totalSeats)">
+            <mat-icon class="seats-icon">people</mat-icon>
+            <span class="seats-text">{{ getAvailableSeatsText(taxi.availableSeats, taxi.totalSeats) | translate:{count: taxi.availableSeats} }}</span>
+          </div>
+          
+          <div class="seats-visual">
+            <div class="seat" 
+                 *ngFor="let seat of [1,2,3,4]; let i = index"
+                 [class.occupied]="i >= taxi.availableSeats"
+                 [class.available]="i < taxi.availableSeats">
+              <mat-icon>person</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="taxi-actions">
+          <button class="btn btn-secondary contact-btn" 
+                  (click)="contactDriver(taxi); $event.stopPropagation()"
+                  [title]="'scheduled.modal.contactDriver' | translate">
+            <mat-icon class="icon">call</mat-icon>
+            <span>{{ 'scheduled.contactTelegram' | translate }}</span>
+          </button>
+          
+          <button class="btn btn-primary book-btn" 
+                  (click)="bookSeat(taxi); $event.stopPropagation()"
+                  [disabled]="taxi.availableSeats === 0"
+                  [title]="'scheduled.bookSeatTitle' | translate">
+            <mat-icon class="icon">event_seat</mat-icon>
+            <span>{{ taxi.availableSeats === 0 ? ('scheduled.seats.full' | translate) : ('scheduled.actions.book' | translate) }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+  <p>{{ 'scheduled.loading' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- No Taxis State -->
+  <div class="no-taxis card" *ngIf="scheduledTaxis.length === 0 && !isLoading">
+    <div class="no-taxis-content">
+      <div class="no-taxis-icon">🚗</div>
+      <h3>{{ 'scheduled.empty.title' | translate }}</h3>
+      <p>{{ 'scheduled.empty.subtitle' | translate }}</p>
+      <button class="btn btn-primary retry-btn" (click)="loadScheduledTaxis()">
+        <mat-icon class="icon">refresh</mat-icon>
+        <span>{{ 'scheduled.empty.retry' | translate }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .scheduled-taxis-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* Page Header */
+  .page-header {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-light);
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--surface-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .back-btn:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: scale(1.05);
+  }
+
+  .header-info h1 {
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+  }
+
+  .header-subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Filters Section */
+  .filters-section {
+    margin: 0;
+  }
+
+  .filter-chips {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+    padding-bottom: var(--space-xs);
+  }
+
+  .filter-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .filter-chip.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .filter-chip:hover:not(.active) {
+    background: var(--surface-secondary);
+    border-color: var(--text-tertiary);
+  }
+
+  .filter-chip mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Taxis Section */
+  .taxis-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .section-header h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .taxis-count-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+  }
+
+  .count-number {
+    font-weight: 600;
+    font-size: var(--font-size-base);
+  }
+
+  /* Taxis List */
+  .taxis-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .taxi-card {
+    padding: var(--space-xl);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .taxi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+  }
+
+  /* Taxi Header */
+  .taxi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .departure-time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .time-icon {
+    font-size: 1.5rem;
+  }
+
+  .time {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .duration {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .price-info {
+    text-align: right;
+  }
+
+  .price {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .price-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Route Information */
+  .route-info {
+    margin-bottom: var(--space-lg);
+  }
+
+  .route-line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .location-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--surface);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+  }
+
+  .from-dot {
+    background: var(--primary);
+  }
+
+  .to-dot {
+    background: var(--secondary);
+  }
+
+  .route-path {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    border-radius: 1px;
+  }
+
+  .locations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .location-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .location-label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .location-text {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* Driver Information */
+  .driver-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-md);
+  }
+
+  .driver-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .driver-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary) 0%, #0056CC 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-light);
+  }
+
+  .avatar-text {
+    color: white;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+
+  .driver-name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+  }
+
+  .driver-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .rating-stars {
+    font-size: var(--font-size-sm);
+    color: #FF9500;
+  }
+
+  .rating-value {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .experience {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+  }
+
+  .car-info {
+    text-align: right;
+  }
+
+  .car-model {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .car-details {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+  }
+
+  /* Available Seats */
+  .seats-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .seats-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 500;
+  }
+
+  .seats-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .seats-visual {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .seat {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .seat mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .seat.available {
+    background: var(--secondary);
+    color: white;
+  }
+
+  .seat.occupied {
+    background: var(--border-light);
+    color: var(--text-tertiary);
+  }
+
+  /* Action Buttons */
+  .taxi-actions {
+    display: flex;
+    gap: var(--space-md);
+  }
+
+  .contact-btn {
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .book-btn {
+    flex: 1;
+    max-width: 140px;
+  }
+
+  .book-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Loading State */
+  .loading-state {
+    text-align: center;
+    padding: var(--space-2xl);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+  }
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-light);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius-full);
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* No Taxis State */
+  .no-taxis {
+    text-align: center;
+    padding: var(--space-2xl);
+  }
+
+  .no-taxis-content {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .no-taxis-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-lg);
+    filter: grayscale(0.3);
+  }
+
+  .no-taxis h3 {
+    margin: 0 0 var(--space-md) 0;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .no-taxis p {
+    margin: 0 0 var(--space-xl) 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .retry-btn {
+    min-width: 140px;
+  }
+
+  /* Animations */
+  .slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .scale-in {
+    animation: scaleIn 0.5s ease-out both;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .scheduled-taxis-container {
+      padding: var(--space-md);
+      gap: var(--space-lg);
+    }
+
+    .page-header {
+      padding: var(--space-md);
+    }
+
+    .header-info h1 {
+      font-size: var(--font-size-xl);
+    }
+
+    .taxi-card {
+      padding: var(--space-lg);
+    }
+
+    .taxi-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .price-info {
+      text-align: left;
+    }
+
+    .locations {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .driver-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .car-info {
+      text-align: left;
+    }
+
+    .seats-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .taxi-actions {
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .contact-btn,
+    .book-btn {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .scheduled-taxis-container {
+      padding: var(--space-sm);
+      gap: var(--space-md);
+    }
+
+    .page-header {
+      padding: var(--space-sm);
+    }
+
+    .header-info h1 {
+      font-size: var(--font-size-lg);
+    }
+
+    .taxi-card {
+      padding: var(--space-md);
+    }
+
+    .departure-time {
+      gap: var(--space-sm);
+    }
+
+    .time {
+      font-size: var(--font-size-lg);
+    }
+
+    .price {
+      font-size: var(--font-size-lg);
+    }
+
+    .driver-avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    .avatar-text {
+      font-size: var(--font-size-base);
+    }
+
+    .no-taxis-icon {
+      font-size: 3rem;
+    }
+
+    .no-taxis h3 {
+      font-size: var(--font-size-lg);
+    }
+  }
+
+  /* Dark theme adjustments */
+  .dark .filter-chip {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text-secondary);
+  }
+
+  .dark .filter-chip.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .dark .filter-chip:hover:not(.active) {
+    background: var(--surface-secondary);
+    border-color: var(--text-tertiary);
+  }
+
+  .dark .taxis-count-badge {
+    background: rgba(0, 122, 255, 0.2);
+    color: #64B5F6;
+    border-color: rgba(100, 181, 246, 0.3);
+  }
+
+  .dark .driver-info {
+    background: var(--surface-secondary);
+  }
+
+  .dark .back-btn {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  .dark .back-btn:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+</style>

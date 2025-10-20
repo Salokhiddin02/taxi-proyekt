@@ -1,0 +1,617 @@
+<div class="drivers-container">
+  <!-- Trip Summary Card -->
+  <div class="trip-summary card card-elevated slide-down" *ngIf="tripInfo.from">
+    <div class="trip-header">
+      <div class="trip-icon">📍</div>
+      <div class="trip-info">
+  <h2>{{ 'ui.tripDetails' | translate }}</h2>
+  <p class="trip-subtitle">{{ 'ui.reviewJourney' | translate }}</p>
+      </div>
+    </div>
+    
+    <div class="route-info">
+      <div class="route-line">
+        <div class="location-dot from-dot"></div>
+        <div class="route-path"></div>
+        <div class="location-dot to-dot"></div>
+      </div>
+      
+      <div class="locations">
+        <div class="location-item">
+          <div class="location-label">{{ 'ui.from' | translate }}</div>
+          <div class="location-text">{{ tripInfo.from }}</div>
+        </div>
+        
+        <div class="location-item">
+          <div class="location-label">{{ 'ui.to' | translate }}</div>
+          <div class="location-text">{{ tripInfo.to }}</div>
+        </div>
+      </div>
+      
+      <div class="trip-meta" *ngIf="tripInfo.date || tripInfo.passengers">
+        <div class="meta-chip" *ngIf="tripInfo.date">
+          <mat-icon class="chip-icon">event</mat-icon>
+          <span class="chip-text">{{ formatDate(tripInfo.date) }}</span>
+        </div>
+        <div class="meta-chip" *ngIf="tripInfo.passengers">
+          <mat-icon class="chip-icon">people</mat-icon>
+          <span class="chip-text">{{ tripInfo.passengers }} {{ tripInfo.passengers > 1 ? ('drivers.trip.passengers' | translate:{count: tripInfo.passengers}) : ('drivers.trip.passengers' | translate:{count: tripInfo.passengers}) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drivers Section -->
+  <div class="drivers-section slide-up">
+    <div class="section-header">
+      <div class="header-content">
+  <h2>🚗 {{ 'ui.availableDrivers' | translate }}</h2>
+        <div class="drivers-badge">
+          <span class="badge-number">{{ drivers.length }}</span>
+          <span class="badge-text">{{ 'ui.driversAvailable' | translate:{count: drivers.length} }}</span>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button class="action-btn" title="{{ 'ui.tune' | translate }}">
+          <mat-icon>tune</mat-icon>
+        </button>
+        <button class="action-btn" (click)="refreshDrivers()" title="{{ 'ui.refresh' | translate }}">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <div class="drivers-list" *ngIf="!isLoading">
+      <div *ngFor="let driver of drivers; let i = index" 
+           class="dcard scale-in" (click)="openDriver(driver)" role="button" tabindex="0"
+           [style.animation-delay]="(i * 0.1) + 's'">
+
+        <div class="dhead">
+          <div class="dleft">
+            <div class="davatar"><span>{{ driver.name.charAt(0) }}</span><i class="dstatus" [class.on]="driver.isOnline !== false"></i></div>
+            <div class="dmeta">
+              <div class="dname">{{ driver.name }}</div>
+              <div class="dcar">{{ driver.car }}</div>
+              <div class="dprice" *ngIf="driver.price">{{ driver.price }} {{ 'ui.estimatedFare' | translate }}</div>
+            </div>
+          </div>
+          <div class="dright">
+            <div class="drating">{{ getRatingStars(driver.rating || 0) }}</div>
+            <div class="dval">{{ driver.rating }}</div>
+            <a class="dphone" href="tel:{{ driver.phone }}" (click)="$event.stopPropagation()">{{ driver.phone }}</a>
+          </div>
+        </div>
+
+        <div class="row-actions" (click)="$event.stopPropagation()">
+          <button class="btn info" (click)="openDriver(driver)"><mat-icon>info</mat-icon><span>Ma'lumot</span></button>
+          <button class="btn tg" (click)="messageDriver(driver)"><mat-icon>message</mat-icon><span>Telegram</span></button>
+          <button class="btn call" (click)="contactDriver(driver)"><mat-icon>call</mat-icon><span>Aloqa</span></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>{{ 'drivers.loading' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- No Drivers State -->
+  <div class="no-drivers card" *ngIf="drivers.length === 0 && !isLoading">
+    <div class="no-drivers-content">
+      <div class="no-drivers-icon">🚫</div>
+      <h3>{{ 'drivers.empty.title' | translate }}</h3>
+      <p>{{ 'drivers.empty.subtitle' | translate }}</p>
+      <button class="btn btn-primary retry-btn" (click)="refreshDrivers()">
+        <mat-icon class="icon">refresh</mat-icon>
+        <span>{{ 'drivers.empty.retry' | translate }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .drivers-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* Trip Summary */
+  .trip-summary {
+    padding: var(--space-xl);
+  }
+
+  .trip-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  .trip-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+  }
+
+  .trip-info h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .trip-subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Route Visualization */
+  .route-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .route-line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    position: relative;
+  }
+
+  .location-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid var(--surface);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+  }
+
+  .from-dot {
+    background: var(--primary);
+  }
+
+  .to-dot {
+    background: var(--secondary);
+  }
+
+  .route-path {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    border-radius: 1px;
+  }
+
+  .locations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .location-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .location-label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .location-text {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  /* Trip Meta */
+  .trip-meta {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-xl);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border: 1px solid rgba(0, 122, 255, 0.2);
+  }
+
+  .chip-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Drivers Section */
+  .drivers-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .header-content h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  .drivers-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+  }
+
+  .badge-number {
+    font-weight: 600;
+    font-size: var(--font-size-base);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .action-btn:hover {
+    background: var(--surface-secondary);
+    border-color: var(--text-tertiary);
+    transform: scale(1.05);
+  }
+
+  /* Drivers List */
+  .drivers-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .driver-card {
+    padding: var(--space-xl);
+  }
+
+  /* Driver Header */
+  .driver-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .driver-avatar-section {
+    position: relative;
+  }
+
+  .driver-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary) 0%, #0056CC 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-light);
+  }
+
+  .avatar-text {
+    color: white;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+
+  .online-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-full);
+    background: #FF3B30;
+    border: 3px solid var(--surface);
+    transition: background-color 0.2s ease;
+  }
+
+  .online-indicator.online {
+    background: var(--secondary);
+  }
+
+  .driver-info {
+    flex: 1;
+  }
+
+  .driver-name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+  }
+
+  .driver-car {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  .driver-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .rating-stars {
+    font-size: var(--font-size-base);
+    color: #FF9500;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  .rating-value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* Driver Details */
+  .driver-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .detail-icon {
+    color: var(--text-secondary);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .detail-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+  }
+
+  .detail-text.price {
+    font-weight: 600;
+    color: var(--secondary);
+  }
+
+  /* Driver Actions */
+  .driver-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: flex-end;
+  }
+
+  .message-btn {
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .contact-btn {
+    flex: 1;
+    max-width: 140px;
+  }
+
+  /* Loading State */
+  .loading-state {
+    text-align: center;
+    padding: var(--space-2xl);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+  }
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-light);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius-full);
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* No Drivers State */
+  .no-drivers {
+    text-align: center;
+    padding: var(--space-2xl);
+  }
+
+  .no-drivers-content {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .no-drivers-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-lg);
+    filter: grayscale(0.3);
+  }
+
+  .no-drivers h3 {
+    margin: 0 0 var(--space-md) 0;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .no-drivers p {
+    margin: 0 0 var(--space-xl) 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .retry-btn {
+    min-width: 140px;
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .drivers-container {
+      gap: var(--space-lg);
+    }
+
+    .trip-summary {
+      padding: var(--space-lg);
+    }
+
+    .trip-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+
+    .locations {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .driver-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .driver-details {
+      grid-template-columns: 1fr;
+    }
+
+    .driver-actions {
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .message-btn,
+    .contact-btn {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .trip-summary {
+      padding: var(--space-md);
+    }
+
+    .trip-info h2 {
+      font-size: var(--font-size-lg);
+    }
+
+    .driver-avatar {
+      width: 48px;
+      height: 48px;
+    }
+
+    .avatar-text {
+      font-size: var(--font-size-base);
+    }
+
+    .driver-name {
+      font-size: var(--font-size-base);
+    }
+
+    .no-drivers-icon {
+      font-size: 3rem;
+    }
+
+    .no-drivers h3 {
+      font-size: var(--font-size-lg);
+    }
+  }
+
+  /* Dark theme adjustments */
+  .dark .meta-chip,
+  .dark .drivers-badge {
+    background: rgba(0, 122, 255, 0.2);
+    color: #64B5F6;
+    border-color: rgba(100, 181, 246, 0.3);
+  }
+
+  .dark .action-btn {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  .dark .action-btn:hover {
+    background: var(--surface-secondary);
+    border-color: var(--text-tertiary);
+  }
+</style>

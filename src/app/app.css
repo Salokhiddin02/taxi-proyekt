@@ -1,0 +1,102 @@
+/* Language Toggle Button Styles */
+.language-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  min-width: 60px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.language-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.language-btn:active {
+  transform: scale(0.95);
+}
+
+.lang-flag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lang-code {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Header right actions container */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Dark theme adjustments */
+.dark .language-btn {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .language-btn:hover {
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .language-btn {
+    min-width: 50px;
+    height: 36px;
+    padding: var(--space-xs);
+  }
+
+  .lang-flag {
+    font-size: 0.9rem;
+  }
+
+  .lang-code {
+    font-size: 0.7rem;
+  }
+
+  .header-right {
+    gap: var(--space-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .language-btn {
+    min-width: 45px;
+    height: 32px;
+  }
+
+  .lang-code {
+    display: none; /* Hide language code on very small screens */
+  }
+}
+
+
+
+
+
+
+
+
+
+

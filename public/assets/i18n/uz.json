@@ -1,0 +1,270 @@
+{
+  "ui": {
+    "tripDetails": "Sayohat tafsilotlari",
+    "reviewJourney": "Sayohat ma'lumotlarini ko'rib chiqing",
+    "from": "Dan",
+    "to": "Ga",
+    "availableDrivers": "Mavjud haydovchilar",
+    "driversAvailable": "{{count}} haydovchi mavjud",
+    "kmAway": "km uzoqlikda",
+    "minEta": "daq ETA",
+    "estimatedFare": "taxminiy narx",
+    "telegram": "Telegram",
+    "call": "Qo'ng'iroq qilish",
+    "contact": "Aloqa",
+    "tune": "Sozlash",
+    "refresh": "Yangilash"
+  },
+  "app": {
+    "title": "TaxiGo",
+    "tagline": "Sizning sayohatingiz, sizning yo'lingiz"
+  },
+  "header": {
+    "close": "Yopish",
+    "back": "Orqaga"
+  },
+  "home": {
+    "hero": {
+      "title": "Mukammal yo'lovni bron qiling",
+      "subtitle": "Professional haydovchilar, qulay mashinalar va ishonchli xizmat"
+    },
+    "booking": {
+      "title": "📍 Qayerga borasiz?",
+      "subtitle": "Eng yaxshi haydovchilarni topish uchun sayohat tafsilotlarini kiriting",
+      "from": {
+        "label": "Olib ketish joyi",
+        "placeholder": "Joriy manzilingizni kiriting"
+      },
+      "to": {
+        "label": "Manzil",
+        "placeholder": "Qayerga bormoqchisiz?"
+      },
+      "date": {
+        "label": "Sayohat sanasi",
+        "placeholder": "Sanani tanlang"
+      },
+      "passengers": {
+        "label": "Yo'lovchilar",
+        "placeholder": "1-8"
+      },
+      "submit": "Haydovchilarni topish",
+      "submitting": "Qidirilmoqda..."
+    },
+    "services": {
+      "taxi": "Taksi",
+      "delivery": "Yetkazib berish",
+      "scheduled": "Rejalashtirilgan"
+    },
+    "options": {
+      "info": {
+        "title": "Sayohat ma'lumotlari",
+        "subtitle": "Maxsus ko'rsatmalar yoki talablarni qo'shing"
+      }
+    },
+    "features": {
+      "title": "Nima uchun bizni tanlaysiz",
+      "quick": {
+        "title": "Tez bron qilish",
+        "subtitle": "Oddiy jarayon bilan bir necha soniyada yo'lovni bron qiling"
+      },
+      "safe": {
+        "title": "Xavfsiz va ishonchli",
+        "subtitle": "Barcha haydovchilar tekshirilgan va avtomobillar muntazam tekshiriladi"
+      },
+      "fair": {
+        "title": "Adolatli narxlar",
+        "subtitle": "Yashirin to'lovlar yoki qo'shimcha to'lovlarsiz shaffof narxlar"
+      }
+    }
+  },
+  "drivers": {
+    "title": "🚗 Mavjud haydovchilar",
+    "subtitle": "Sizning sayohatingiz uchun eng yaxshi haydovchilarni tanlang",
+    "count": "{{count}} haydovchi mavjud",
+    "back": "Bosh sahifaga qaytish",
+    "trip": {
+      "title": "Sayohat tafsilotlari",
+      "subtitle": "Sayohat ma'lumotlaringizni ko'rib chiqing",
+      "from": "Dan",
+      "to": "Ga",
+      "date": "Sana",
+      "passengers": "{{count}} yo'lovchi"
+    },
+    "card": {
+      "rating": "Reyting",
+      "experience": "{{years}} yillik tajriba",
+      "distance": "{{km}} km uzoqlikda",
+      "eta": "{{min}} daq ETA",
+      "phone": "Telefon",
+      "price": "{{price}} taxminiy narx"
+    },
+    "actions": {
+      "telegram": "Telegram",
+      "contact": "Aloqa",
+      "message": "Xabar",
+      "call": "Qo'ng'iroq qilish"
+    },
+    "empty": {
+      "title": "Haydovchilar mavjud emas",
+      "subtitle": "Kechirasiz, hozirda sayohatingiz uchun haydovchilar mavjud emas. Iltimos, bir necha daqiqadan keyin qayta urinib ko'ring.",
+      "retry": "Qayta urinish"
+    },
+    "loading": "Eng yaxshi haydovchilarni topish..."
+  },
+  "scheduled": {
+    "title": "🚗 Rejalashtirilgan taksilar",
+    "subtitle": "Oldindan yo'lovni bron qiling",
+    "count": "{{count}} taksi mavjud",
+    "filters": {
+      "allTimes": "Barcha vaqtlar",
+      "allRoutes": "Barcha yo'nalishlar",
+      "availableSeats": "Mavjud o'rindiqlar"
+    },
+    "departures": "Mavjud jo'nashlar",
+    "route": {
+      "from": "Dan",
+      "to": "Ga",
+      "duration": "{{duration}} davomiylik"
+    },
+    "price": {
+      "perPerson": "bir kishi uchun",
+      "total": "Jami"
+    },
+    "seats": {
+      "full": "To'liq",
+      "oneLeft": "1 o'rindiq qoldi",
+      "available": "{{count}} o'rindiq qoldi"
+    },
+    "actions": {
+      "contact": "Aloqa",
+      "book": "O'rindiq bron qilish",
+      "viewDetails": "Tafsilotlarni ko'rish"
+    },
+    "modal": {
+      "title": "Taksi tafsilotlari",
+      "overview": "Sayohat umumiy ko'rinishi",
+      "driver": "Haydovchi ma'lumotlari",
+      "vehicle": "Avtomobil ma'lumotlari",
+      "reviews": "Mijozlar sharhlari",
+      "experience": "{{years}} tajriba",
+      "year": "Yil",
+      "color": "Rang",
+      "plate": "Raqam",
+      "photos": "Rasmlar",
+      "contactDriver": "Haydovchi bilan bog'lanish",
+      "bookSeat": "O'rindiq bron qilish"
+    },
+    "empty": {
+      "title": "Rejalashtirilgan taksilar mavjud emas",
+      "subtitle": "Kechirasiz, hozirda rejalashtirilgan taksilar mavjud emas. Iltimos, keyinroq qayta urinib ko'ring yoki yangi jadvallarni tekshiring.",
+      "retry": "Yangilash"
+    },
+    "loading": "Rejalashtirilgan taksilar yuklanmoqda..."
+  },
+  "booking": {
+    "title": "🎫 Bronni tasdiqlash",
+    "subtitle": "Sayohat tafsilotlaringizni ko'rib chiqing",
+    "summary": "Sayohat xulosasi",
+    "baseFare": "Asosiy narx",
+    "serviceFee": "Xizmat to'lovi",
+    "total": "Jami",
+    "estimatedDuration": "Taxminiy davomiylik: {{duration}}",
+    "actions": {
+      "back": "Orqaga",
+      "confirm": "Bronni tasdiqlash"
+    },
+    "success": "Bron tasdiqlandi! Tez orada tasdiqlash xabari olasiz.",
+    "goBack": "Orqaga qaytish"
+  },
+  "common": {
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik yuz berdi",
+    "retry": "Qayta urinish",
+    "cancel": "Bekor qilish",
+    "confirm": "Tasdiqlash",
+    "close": "Yopish",
+    "back": "Orqaga",
+    "next": "Keyingi",
+    "save": "Saqlash",
+    "search": "Qidirish",
+    "filter": "Filtr",
+    "sort": "Saralash"
+  },
+  "validation": {
+    "required": "{{field}} talab qilinadi",
+    "min": "Minimum {{min}} yo'lovchi talab qilinadi",
+    "max": "Maksimum {{max}} yo'lovchiga ruxsat beriladi",
+    "invalid": "Noto'g'ri {{field}}"
+  },
+  "location": {
+    "getting": "Joylashuv olinmoqda...",
+    "error": {
+      "permissionDenied": "Joylashuv ruxsati rad etildi. Iltimos, brauzer sozlamalarida joylashuv ruxsatini yoqing.",
+      "unavailable": "Joylashuv ma'lumoti mavjud emas. Internet aloqangizni tekshiring.",
+      "timeout": "Joylashuv so'rovi vaqti tugadi. Iltimos, qayta urinib ko'ring.",
+      "notSupported": "Bu brauzer joylashuvni qo'llab-quvvatlamaydi.",
+      "unknown": "Joylashuvni olishda noma'lum xatolik yuz berdi."
+    },
+    "success": "Joylashuv muvaffaqiyatli olingan"
+  },
+  "app": {
+    "title": "TaxiGo",
+    "tagline": "Sizning sayohatingiz, sizning yo'lingiz",
+    "closeConfirm": "Ilovani yopishni xohlaysizmi?",
+    "themeToggle": "Temani o'zgartirish"
+  },
+  "header": {
+    "close": "Yopish",
+    "back": "Orqaga",
+    "goBack": "Orqaga qaytish",
+    "closeApp": "Ilovani yopish"
+  },
+  "drivers": {
+    "loading": "Eng yaxshi haydovchilarni topish...",
+    "empty": {
+      "title": "Haydovchilar mavjud emas",
+      "subtitle": "Kechirasiz, hozirda sayohatingiz uchun haydovchilar mavjud emas. Iltimos, bir necha daqiqadan keyin qayta urinib ko'ring.",
+      "retry": "Qayta urinish"
+    },
+    "contactTelegram": "Telegram orqali xabar yuborish",
+    "contactViaTelegram": "Telegram orqali bog'lanish"
+  },
+  "scheduled": {
+    "price": {
+      "currency": "sum"
+    },
+    "modal": {
+      "title": "Taksi tafsilotlari",
+      "overview": "Sayohat umumiy ko'rinishi",
+      "driver": "Haydovchi ma'lumotlari",
+      "vehicle": "Avtomobil ma'lumotlari",
+      "reviews": "Mijozlar sharhlari",
+      "experience": "tajriba",
+      "year": "yil",
+      "color": "rang",
+      "plate": "raqam",
+      "photos": "rasmlar",
+      "contactDriver": "Haydovchi bilan bog'lanish",
+      "bookSeat": "O'rindiq bron qilish"
+    },
+    "seats": {
+      "full": "To'liq",
+      "oneLeft": "1 o'rindiq qoldi",
+      "available": "{{count}} o'rindiq qoldi"
+    },
+    "contactTelegram": "Telegram orqali bog'lanish",
+    "bookSeatTitle": "O'rindiq bron qilish"
+  },
+  "modal": {
+    "taxiDetails": "Taksi tafsilotlari",
+    "driverInfo": "Haydovchi ma'lumotlari",
+    "vehicleInfo": "Avtomobil ma'lumotlari",
+    "customerReviews": "Mijozlar sharhlari",
+    "contactDriver": "Haydovchi bilan bog'lanish",
+    "bookSeat": "O'rindiq bron qilish"
+  }
+}
+
+
+
+

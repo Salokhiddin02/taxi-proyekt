@@ -1,0 +1,536 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <div class="hero-section fade-in">
+    <div class="hero-content">
+      <div class="hero-icon">🚕</div>
+      <h1 class="hero-title">{{ 'home.hero.title' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'home.hero.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Main Booking Form -->
+  <div class="booking-card card card-elevated slide-up">
+    <div class="card-header">
+      <h2>{{ 'home.booking.title' | translate }}</h2>
+      <p class="card-subtitle">{{ 'home.booking.subtitle' | translate }}</p>
+    </div>
+    
+    <form [formGroup]="tripForm" (ngSubmit)="onSubmit()" class="booking-form">
+      <!-- From Location -->
+      <div class="form-field">
+        <label class="form-label">{{ 'home.booking.from.label' | translate }}</label>
+        <mat-form-field appearance="outline" class="modern-field">
+          <mat-label>{{ 'home.booking.from.placeholder' | translate }}</mat-label>
+          <input matInput 
+                 formControlName="from" 
+                 [placeholder]="'home.booking.from.placeholder' | translate"
+                 type="text"
+                 [matAutocomplete]="autoFrom">
+          <mat-autocomplete #autoFrom="matAutocomplete" (optionSelected)="onFromSelected($event.option.value)">
+            <mat-option *ngFor="let option of filteredDistricts()" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+          <button matSuffix 
+                  mat-icon-button 
+                  type="button"
+                  (click)="getUserLocation()"
+                  class="location-btn"
+                  [disabled]="isGettingLocation"
+                  aria-label="Get current location">
+            <mat-icon class="location-icon" *ngIf="!isGettingLocation">my_location</mat-icon>
+            <mat-icon class="location-icon loading" *ngIf="isGettingLocation">refresh</mat-icon>
+          </button>
+          <mat-error *ngIf="tripForm.get('from')?.invalid && tripForm.get('from')?.touched">
+            {{ getErrorMessage('from') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- To Location -->
+      <div class="form-field">
+        <label class="form-label">{{ 'home.booking.to.label' | translate }}</label>
+        <mat-form-field appearance="outline" class="modern-field">
+          <mat-label>{{ 'home.booking.to.placeholder' | translate }}</mat-label>
+          <input matInput 
+                 formControlName="to" 
+                 [placeholder]="'home.booking.to.placeholder' | translate"
+                 type="text"
+                 [matAutocomplete]="autoTo">
+          <mat-autocomplete #autoTo="matAutocomplete" (optionSelected)="tripForm.patchValue({to: $event.option.value})">
+            <mat-option *ngFor="let option of filteredToDistricts()" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-icon matSuffix class="field-icon">place</mat-icon>
+          <mat-error *ngIf="tripForm.get('to')?.invalid && tripForm.get('to')?.touched">
+            {{ getErrorMessage('to') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Trip Details Row -->
+      <div class="form-row">
+        <!-- Date -->
+        <div class="form-field half-width">
+          <label class="form-label">{{ 'home.booking.date.label' | translate }}</label>
+          <mat-form-field appearance="outline" class="modern-field">
+            <mat-label>{{ 'home.booking.date.placeholder' | translate }}</mat-label>
+            <input matInput 
+                   [matDatepicker]="picker" 
+                   formControlName="date"
+                   [placeholder]="'home.booking.date.placeholder' | translate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="tripForm.get('date')?.invalid && tripForm.get('date')?.touched">
+              {{ getErrorMessage('date') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Passengers -->
+        <div class="form-field half-width">
+          <label class="form-label">{{ 'home.booking.passengers.label' | translate }}</label>
+          <mat-form-field appearance="outline" class="modern-field">
+            <mat-label>{{ 'home.booking.passengers.placeholder' | translate }}</mat-label>
+            <input matInput 
+                   formControlName="passengers" 
+                   [placeholder]="'home.booking.passengers.placeholder' | translate"
+                   type="number"
+                   min="1"
+                   max="8">
+            <mat-icon matSuffix class="field-icon">people</mat-icon>
+            <mat-error *ngIf="tripForm.get('passengers')?.invalid && tripForm.get('passengers')?.touched">
+              {{ getErrorMessage('passengers') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-field">
+        <button mat-raised-button 
+                color="primary" 
+                type="submit"
+                class="btn btn-primary submit-btn"
+                [disabled]="tripForm.invalid"
+                [class.loading]="isSubmitting">
+          <mat-icon class="icon">search</mat-icon>
+          <span>{{ isSubmitting ? ('home.booking.submitting' | translate) : ('home.booking.submit' | translate) }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Service Options -->
+  <div class="service-options slide-up">
+    <div class="service-tabs">
+      <button class="service-tab active" type="button" (click)="selectService('taxi')">
+        <div class="tab-icon">🚗</div>
+        <span>{{ 'home.services.taxi' | translate }}</span>
+      </button>
+      <button class="service-tab" type="button" (click)="selectService('delivery')">
+        <div class="tab-icon">📦</div>
+        <span>{{ 'home.services.delivery' | translate }}</span>
+      </button>
+      <button class="service-tab" type="button" (click)="navigateToScheduledTaxis()">
+        <div class="tab-icon">📅</div>
+        <span>{{ 'home.services.scheduled' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Additional Options -->
+  <div class="additional-options slide-up">
+    <div class="option-item card">
+      <div class="option-icon">ℹ️</div>
+      <div class="option-info">
+        <h4>{{ 'home.options.info.title' | translate }}</h4>
+        <p>{{ 'home.options.info.subtitle' | translate }}</p>
+      </div>
+      <div class="option-arrow">›</div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section slide-up">
+    <div class="features-grid">
+      <div class="feature-card card">
+        <div class="feature-icon">⚡</div>
+        <h3>{{ 'home.features.quick.title' | translate }}</h3>
+        <p>{{ 'home.features.quick.subtitle' | translate }}</p>
+      </div>
+      
+      <div class="feature-card card">
+        <div class="feature-icon">🛡️</div>
+        <h3>{{ 'home.features.safe.title' | translate }}</h3>
+        <p>{{ 'home.features.safe.subtitle' | translate }}</p>
+      </div>
+      
+      <div class="feature-card card">
+        <div class="feature-icon">💰</div>
+        <h3>{{ 'home.features.fair.title' | translate }}</h3>
+        <p>{{ 'home.features.fair.subtitle' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .home-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--space-lg) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    text-align: center;
+    padding: var(--space-2xl) var(--space-lg);
+    background: linear-gradient(135deg, var(--primary-light) 0%, rgba(255, 255, 255, 0.8) 100%);
+    border-radius: var(--radius-2xl);
+    margin: 0 var(--space-lg);
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .hero-icon {
+    font-size: 4rem;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+  }
+
+  .hero-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 500px;
+    line-height: 1.5;
+  }
+
+  /* Booking Card */
+  .booking-card {
+    margin: 0 var(--space-lg);
+    padding: var(--space-2xl);
+  }
+
+  .card-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .card-header h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  .card-subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: var(--font-size-base);
+  }
+
+  /* Form Styles */
+  .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Modern Form Fields */
+  .modern-field {
+    --mdc-outlined-text-field-container-shape: var(--radius-md);
+  }
+
+  .modern-field .mat-mdc-text-field-wrapper {
+    border-radius: var(--radius-md);
+  }
+
+  .field-icon {
+    color: var(--text-secondary);
+  }
+
+  /* Submit Button */
+  .submit-btn {
+    width: 100%;
+    height: 56px;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-md);
+  }
+
+  .submit-btn mat-icon {
+    margin-right: var(--space-sm);
+  }
+
+  /* Service Options */
+  .service-options {
+    margin: 0 var(--space-lg);
+  }
+
+  .service-tabs {
+    display: flex;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .service-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    color: var(--text-secondary);
+    position: relative;
+  }
+
+  .service-tab.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-light);
+  }
+
+  .service-tab:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+  }
+
+  .tab-icon {
+    font-size: 20px;
+  }
+
+
+  /* Additional Options */
+  .additional-options {
+    margin: 0 var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .option-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+
+  .option-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-md);
+  }
+
+  .option-info {
+    flex: 1;
+  }
+
+  .option-info h4 {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+  }
+
+  .option-info p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  .option-arrow {
+    font-size: 1.5rem;
+    color: var(--text-tertiary);
+    font-weight: 300;
+  }
+
+
+  /* Features Section */
+  .features-section {
+    margin: 0 var(--space-lg);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .feature-card {
+    padding: var(--space-xl);
+    text-align: center;
+  }
+
+  .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-md);
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+  }
+
+  .feature-card h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  .feature-card p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .home-container {
+      padding: var(--space-md) 0;
+      gap: var(--space-xl);
+    }
+
+    .hero-section {
+      padding: var(--space-xl) var(--space-md);
+      margin: 0 var(--space-md);
+    }
+
+    .hero-icon {
+      font-size: 3rem;
+    }
+
+    .hero-title {
+      font-size: var(--font-size-2xl);
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-size-base);
+    }
+
+    .booking-card,
+    .service-options,
+    .car-types,
+    .features-section {
+      margin: 0 var(--space-md);
+    }
+
+    .booking-card {
+      padding: var(--space-xl);
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .additional-options {
+      margin: 0 var(--space-md);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-section {
+      padding: var(--space-lg) var(--space-sm);
+      margin: 0 var(--space-sm);
+    }
+
+    .booking-card,
+    .service-options,
+    .car-types,
+    .features-section {
+      margin: 0 var(--space-sm);
+    }
+
+    .booking-card {
+      padding: var(--space-lg);
+    }
+
+    .hero-icon {
+      font-size: 2.5rem;
+    }
+
+    .hero-title {
+      font-size: var(--font-size-xl);
+    }
+
+    .submit-btn {
+      height: 52px;
+      font-size: var(--font-size-base);
+    }
+
+    .additional-options {
+      margin: 0 var(--space-sm);
+    }
+  }
+
+  /* Animation delays */
+  .slide-up:nth-child(2) { animation-delay: 0.1s; }
+  .slide-up:nth-child(3) { animation-delay: 0.2s; }
+  .slide-up:nth-child(4) { animation-delay: 0.3s; }
+  .slide-up:nth-child(5) { animation-delay: 0.4s; }
+</style>

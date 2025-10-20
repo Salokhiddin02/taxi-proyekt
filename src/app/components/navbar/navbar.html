@@ -1,0 +1,31 @@
+<!-- Navbar Component -->
+<div class="navbar-section">
+  <div class="navbar-content">
+    <!-- Left Side - Logo -->
+    <div class="navbar-left">
+      <div class="logo" (click)="navigateToHome()" [title]="'app.title' | translate">
+        <div class="clock">{{ getCurrentTime() }}</div>
+        <div class="logo-icon">🚗</div>
+        <div class="logo-text">
+          <h1>{{ 'app.title' | translate }}</h1>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Language, Dark Mode -->
+    <div class="navbar-right">
+      <!-- Language Selector -->
+      <div class="language-selector" (click)="toggleLanguage()">
+        <span class="language-text">
+          <span class="language-code">{{ currentLang().toUpperCase() }}</span>
+        </span>
+      </div>
+
+      <!-- Dark Mode Toggle -->
+      <button class="dark-mode-toggle" (click)="toggleDarkMode()" [class.active]="isDarkMode">
+        <mat-icon class="sun-icon" *ngIf="!isDarkMode">light_mode</mat-icon>
+        <mat-icon class="moon-icon" *ngIf="isDarkMode">dark_mode</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
