@@ -29,7 +29,7 @@ export class DriverService {
         distance: 2.5,
         estimatedTime: 5,
         isOnline: true,
-        price: "15,000"
+        price: "210,000"
       },
       { 
         name: "Anvar", 
@@ -39,7 +39,7 @@ export class DriverService {
         distance: 3.2,
         estimatedTime: 7,
         isOnline: true,
-        price: "18,000"
+        price: "225,000"
       },
       { 
         name: "Rustam", 
@@ -49,7 +49,7 @@ export class DriverService {
         distance: 1.8,
         estimatedTime: 4,
         isOnline: true,
-        price: "25,000"
+        price: "250,000"
       },
       { 
         name: "Bobur", 
@@ -59,7 +59,7 @@ export class DriverService {
         distance: 4.1,
         estimatedTime: 8,
         isOnline: false,
-        price: "12,000"
+        price: "180,000"
       },
       { 
         name: "Sardor", 
@@ -69,7 +69,7 @@ export class DriverService {
         distance: 2.9,
         estimatedTime: 6,
         isOnline: true,
-        price: "14,000"
+        price: "200,000"
       }
     ];
   }
